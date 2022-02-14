@@ -13,24 +13,24 @@ module.exports = async function (deployer) {
   const G = "0xc49E8851983c7aD445a1697bfF0Aacc85182C4CF"      // 游戏地址
   const H = "0xD986Cfb4c7C370A6A81e24032d61836744D63647"      // 基金地址
   const I = "0x144255298efF5AFd8000B9fba74e4a4F2aFD6b20"      // 竞拍地址
-  await deployer.deploy(BYDK, owner, A, B, C, D, E, F, G, H, I);
+  await deployer.deploy(BYDK, H, I);
   const instanceBYDK = await BYDK.deployed(); 
   // 0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b
 
-  const erc20_ = instanceBYDK.address;
-  const preSaleAddress_ = A                                               // 预售地址
-  const airdropAddress_ = D                                               // 空投地址
-  const collectionAddress_ = "0x44a5e594146706Cf5d93Fa3d4B6D6d0fFC01b82d" // 预售收益总地址
-  const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
-  const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
-  const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
-  const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
-  await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
-  // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3
+  // const erc20_ = instanceBYDK.address;
+  // const preSaleAddress_ = A                                               // 预售地址
+  // const airdropAddress_ = D                                               // 空投地址
+  // const collectionAddress_ = "0x44a5e594146706Cf5d93Fa3d4B6D6d0fFC01b82d" // 预售收益总地址
+  // const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
+  // const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
+  // const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
+  // const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
+  // await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
+  // // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3
 
-  const beneficiary_ = A   // 锁仓解锁收益地址
-  await deployer.deploy(TokenTimelock, erc20_, beneficiary_);
-  // 0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2
+  // const beneficiary_ = A   // 锁仓解锁收益地址
+  // await deployer.deploy(TokenTimelock, erc20_, beneficiary_);
+  // // 0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2
   
 
   // await instanceBYDK.transfer(A, 1200000000000000000000000000); // 预售
