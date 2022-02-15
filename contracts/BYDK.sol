@@ -135,12 +135,12 @@ contract BYDK is Context, IERC20 {
     uint256 private _tFeeTotal;
     uint256 private _burnMinLimit;
 
-    uint256 private _directPushFree;   // 直推 2%
-    uint256 private _indirectPushFree; // 间推 1%
-    uint256 private _blackHoleFree;    // 黑洞 3%
-    uint256 private _shareFree;        // 持币分红 2%
-    uint256 private _fundFree;         // 基金地址 4%
-    uint256 private _biddingFree;      // 竞拍地址 3%
+    uint256 private _directPushFree;
+    uint256 private _indirectPushFree;
+    uint256 private _blackHoleFree;
+    uint256 private _shareFree;
+    uint256 private _fundFree;
+    uint256 private _biddingFree;
 
     uint256 private _preDirectPushFree;
     uint256 private _preIndirectPushFree;
@@ -153,9 +153,6 @@ contract BYDK is Context, IERC20 {
     mapping (address => uint256) private _tOwned;
     mapping (address => bool) private _isExcludedFromFee;
     mapping (address => bool) private _isExcluded;
-
-    address[] private _holders;
-    address[] private _excluded;
     
     string private _name;
     string private _symbol;
@@ -164,6 +161,7 @@ contract BYDK is Context, IERC20 {
     address private _fundAddress;
     address private _actionAddress;
 
+    address[] private _excluded;
 
     struct Relation {
         address first;
@@ -188,19 +186,18 @@ contract BYDK is Context, IERC20 {
         uint256 rBiddingFree;
     }
     
-
     constructor(address fundAddress_, address actionAddress_) {
         _owner = msg.sender;
         _name = "BY DK TOKEN";
         _symbol = "BYDK";
         _decimal = 18;
         
-        _tTotal = 20 * 10**8 * 10**_decimal;
+        _tTotal = 20000 * 10**_decimal;
         _rTotal = (MAX - (MAX % _tTotal));
 
         _rOwned[_owner] = _rTotal;
 
-        _burnMinLimit = 5 * 10**6 * 10**_decimal;
+        _burnMinLimit = 500 * 10**_decimal;
 
         _directPushFree = 2;
         _indirectPushFree = 1;
@@ -268,7 +265,6 @@ contract BYDK is Context, IERC20 {
         return true;
     }
 
-
     function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
@@ -308,7 +304,6 @@ contract BYDK is Context, IERC20 {
         require(amount > 0, "Transfer amount must be greater than zero");
 
         _tokenTransfer(sender, recipient, amount);
-        
         emit Transfer(sender, recipient, amount);
     }
 
@@ -426,7 +421,9 @@ contract BYDK is Context, IERC20 {
             _transferFromExcluded(sender, recipient, amount);
             restoreAllFee();
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
+            removeAllFee();
             _transferToExcluded(sender, recipient, amount);
+            restoreAllFee();
         } else if (!_isExcluded[sender] && !_isExcluded[recipient]) {
             _transferStandard(sender, recipient, amount);
         } else if (_isExcluded[sender] && _isExcluded[recipient]) {
@@ -436,7 +433,6 @@ contract BYDK is Context, IERC20 {
         } else {
             _transferStandard(sender, recipient, amount);
         }
-
     }
 
     function _reflectFee(uint256 rShareFree, uint256 tShareFree) private {

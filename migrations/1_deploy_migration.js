@@ -17,25 +17,28 @@ module.exports = async function (deployer) {
   const instanceBYDK = await BYDK.deployed(); 
   // 0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b
 
-  // const erc20_ = instanceBYDK.address;
-  // const preSaleAddress_ = A                                               // 预售地址
-  // const airdropAddress_ = D                                               // 空投地址
-  // const collectionAddress_ = "0x44a5e594146706Cf5d93Fa3d4B6D6d0fFC01b82d" // 预售收益总地址
-  // const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
-  // const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
-  // const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
-  // const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
-  // await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
-  // // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3
+  const erc20_ = instanceBYDK.address;
+  const preSaleAddress_ = A                                               // 预售地址
+  const airdropAddress_ = D                                               // 空投地址
+  const collectionAddress_ = "0x44a5e594146706Cf5d93Fa3d4B6D6d0fFC01b82d" // 预售收益总地址
+  const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
+  const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
+  const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
+  const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
+  await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
+  // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3
 
   // const beneficiary_ = A   // 锁仓解锁收益地址
   // await deployer.deploy(TokenTimelock, erc20_, beneficiary_);
   // // 0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2
-  
 
-  // await instanceBYDK.transfer(A, 1200000000000000000000000000); // 预售
-  // await instanceBYDK.transfer(D, 60000000000000000000000000);   // 空投
-  // await instanceBYDK.transfer(instanceTokenTimelock.address, 680000000000000000000000000); // 锁仓
+  // 预售 12000
+  // 空投 600
+  // 技术 600
+  // 风投 400
+  // D池  200
+  // 社区 400
+  // 游戏生态 5800
 
 
   // truffle run verify BYDK@0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b --network bsc
