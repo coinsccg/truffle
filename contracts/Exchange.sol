@@ -16,18 +16,22 @@ contract Exchange {
     IERC20 public oldA;
     IERC20 public newB;
     mapping (address => uint256) private user;
-    address public owner;
-    bool public isExchange;
+    address private owner;
+    bool private isExchange;
     uint256 public rate;
 
     event Excahnge(address indexed sender, address indexed recipient, uint256 amount);
 
-    constructor(IERC20 _A, IERC20 _B, address _owner){
-        oldA = _A;
-        newB = _B;
+    constructor(IERC20 _oldA, IERC20 _newB, address _owner){
+        oldA = _oldA;
+        newB = _newB;
         owner = _owner;
-        isExchange = true;
+        isExchange = false;
         rate = 100000;
+    }
+
+    function getExchange() public view returns(bool){
+        return isExchange;
     }
 
     function setExchange(bool _isExchange) external {
@@ -36,7 +40,7 @@ contract Exchange {
     }
 
     function exchange() external {
-        require(isExchange, "Exchange: Close exchange");
+        require(getExchange(), "Exchange: Close exchange");
         address spender = msg.sender;
         uint256 balanceOldA = oldA.balanceOf(spender);
         uint256 balanceNewB = newB.balanceOf(owner);

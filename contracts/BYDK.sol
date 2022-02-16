@@ -307,7 +307,7 @@ contract BYDK is Context, IERC20 {
 
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
-        require(recipient != address(0), "ERC20: transfer to the zero address");
+        // require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
         if(sender != _owner && recipient != _owner) require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
 
