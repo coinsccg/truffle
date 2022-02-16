@@ -133,7 +133,9 @@ contract BYDK is Context, IERC20 {
     uint256 private _tTotal;
     uint256 private _rTotal;
     uint256 private _tFeeTotal;
-    uint256 private _burnMinLimit;
+
+    uint256 public _burnMinLimit;
+    uint256 public _maxTxAmount;
 
     uint256 private _directPushFree;
     uint256 private _indirectPushFree;
@@ -198,6 +200,7 @@ contract BYDK is Context, IERC20 {
         _rOwned[_owner] = _rTotal;
 
         _burnMinLimit = 500 * 10**_decimal;
+        _maxTxAmount = 5000 * 10 ** _decimal;
 
         _directPushFree = 2;
         _indirectPushFree = 1;
@@ -295,13 +298,18 @@ contract BYDK is Context, IERC20 {
     }
 
     function setBurnMinLimit(uint256 minLimit) external onlyOwner() {
-        _burnMinLimit = minLimit;
+        _burnMinLimit = minLimit * 10**_decimal;
+    }
+
+    function setMaxTxAmount(uint256 maxTxAmount) public onlyOwner {
+        _maxTxAmount = maxTxAmount * 10**_decimal;
     }
 
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
+        if(sender != _owner && recipient != _owner) require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
 
         _tokenTransfer(sender, recipient, amount);
         emit Transfer(sender, recipient, amount);
