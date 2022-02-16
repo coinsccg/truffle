@@ -297,11 +297,11 @@ contract BYDK is Context, IERC20 {
         return _tFeeTotal;
     }
 
-    function setBurnMinLimit(uint256 minLimit) external onlyOwner() {
+    function setBurnMinLimit(uint256 minLimit) external onlyOwner {
         _burnMinLimit = minLimit * 10**_decimal;
     }
 
-    function setMaxTxAmount(uint256 maxTxAmount) public onlyOwner() {
+    function setMaxTxAmount(uint256 maxTxAmount) public onlyOwner {
         _maxTxAmount = maxTxAmount * 10**_decimal;
     }
 
@@ -315,7 +315,7 @@ contract BYDK is Context, IERC20 {
         emit Transfer(sender, recipient, amount);
     }
 
-    function excludeFromReward(address account) public onlyOwner() {
+    function excludeFromReward(address account) public onlyOwner {
         require(!_isExcluded[account], "Account is already excluded");
         if(_rOwned[account] > 0) {
             _tOwned[account] = tokenFromReflection(_rOwned[account]);
@@ -324,7 +324,7 @@ contract BYDK is Context, IERC20 {
         _excluded.push(account);
     }
 
-    function includeInReward(address account) external onlyOwner() {
+    function includeInReward(address account) external onlyOwner {
         require(_isExcluded[account], "Account is already excluded");
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_excluded[i] == account) {
@@ -337,7 +337,7 @@ contract BYDK is Context, IERC20 {
         }
     }
 
-    function setTaxFeePercent(uint256 shareFree_, uint256 directPushFree_, uint256 indirectPushFree_, uint256 blackHoleFree_, uint256 fundFree_, uint256 biddingFree_) external onlyOwner() {
+    function setTaxFeePercent(uint256 shareFree_, uint256 directPushFree_, uint256 indirectPushFree_, uint256 blackHoleFree_, uint256 fundFree_, uint256 biddingFree_) external onlyOwner {
         _directPushFree = directPushFree_;
         _indirectPushFree = indirectPushFree_;
         _blackHoleFree = blackHoleFree_;
