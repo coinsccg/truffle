@@ -137,12 +137,12 @@ contract BYDK is Context, IERC20 {
     uint256 public _burnMinLimit;
     uint256 public _maxTxAmount;
 
-    uint256 private _directPushFree;
-    uint256 private _indirectPushFree;
-    uint256 private _blackHoleFree;
-    uint256 private _shareFree;
-    uint256 private _fundFree;
-    uint256 private _biddingFree;
+    uint256 public _directPushFree;
+    uint256 public _indirectPushFree;
+    uint256 public _blackHoleFree;
+    uint256 public _shareFree;
+    uint256 public _fundFree;
+    uint256 public _biddingFree;
 
     uint256 private _preDirectPushFree;
     uint256 private _preIndirectPushFree;
@@ -301,7 +301,7 @@ contract BYDK is Context, IERC20 {
         _burnMinLimit = minLimit * 10**_decimal;
     }
 
-    function setMaxTxAmount(uint256 maxTxAmount) public onlyOwner {
+    function setMaxTxAmount(uint256 maxTxAmount) public onlyOwner() {
         _maxTxAmount = maxTxAmount * 10**_decimal;
     }
 
