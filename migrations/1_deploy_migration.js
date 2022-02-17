@@ -22,7 +22,7 @@ module.exports = async function (deployer) {
   const erc20_ = instanceBYDK.address;
   // 0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b
   // 0x9f22475dbbaa98e65a2C82B4dF2abc665A45986A
-
+  // 0x885A1AeB3aB988ab8Ac2902fCaC12a79612017Cd
 
   // 预售合约
   const preSaleAddress_ = A                                               // 预售地址
@@ -36,12 +36,14 @@ module.exports = async function (deployer) {
   await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
   // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3 预售合约旧地址
   // 0x222386C29Cd2b763039D9198878147Bf59F981F6
+  // 0x826403DB1b05Dc9ea5eC02d54A125F7b00b15237
 
   // 置换合约
   // const oldAddress = "0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b"
   const oldAddress = "0x1c4c2c9585343100f3a21b06dd03b7ed8d47d590"
   await deployer.deploy(Exchange, oldAddress, erc20_, owner)
   // 0xF2d750CEF41Df1349691915BD7E892A0BFc189B5
+  // 0x02e7bAA0ab12D1550cCb0Ad37F242C029b4d2d1E
 
 
   // 锁仓合约
@@ -49,18 +51,10 @@ module.exports = async function (deployer) {
   // await deployer.deploy(TokenTimelock, erc20_, beneficiary_);
   // // 0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2
 
-  // 预售 12000
-  // 空投 600
-  // 技术 600
-  // 风投 400
-  // D池  200
-  // 社区 400
-  // 游戏生态 5800
 
-
-  // truffle run verify BYDK@0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b --network bsc
-  // truffle run verify PreSale@0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3 --network bsc
-  // truffle run verify Exchange@0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2 --network bsc
+  // truffle run verify BYDK@0x0e41895A7005e5E4813Cac74006Ad767e32975AD --network bsc
+  // truffle run verify PreSale@0x610198A4D81d28619A3553a54875632791C8Fe07 --network bsc
+  // truffle run verify Exchange@0xc0704Db4f32a9da58cd988365f9DfEea6ed9a3f9 --network bsc
   // truffle run verify TokenTimeLock@0x6C116406FcD525BAC21dd52954C1eDa4aa9368B2 --network bsc
   
 };
