@@ -12,7 +12,6 @@ abstract contract Context {
     }
 }
 
-
 library SafeMath {
     function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
         unchecked {
@@ -109,7 +108,6 @@ library SafeMath {
     }
 }
 
-
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
@@ -120,7 +118,6 @@ interface IERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
-
 
 contract BYDK is Context, IERC20 {
     using SafeMath for uint256;
@@ -194,13 +191,13 @@ contract BYDK is Context, IERC20 {
         _symbol = "BYDK";
         _decimal = 18;
         
-        _tTotal = 20000 * 10**_decimal;
+        _tTotal = 2000000 * 10**_decimal;
         _rTotal = (MAX - (MAX % _tTotal));
 
         _rOwned[_owner] = _rTotal;
 
-        _burnMinLimit = 500 * 10**_decimal;
-        _maxTxAmount = 5000 * 10 ** _decimal;
+        _burnMinLimit = 50000 * 10**_decimal;
+        _maxTxAmount = 500000 * 10 ** _decimal;
 
         _directPushFree = 2;
         _indirectPushFree = 1;

@@ -18,17 +18,23 @@ contract Exchange {
     IERC20 public newB;
     mapping (address => uint256) private user;
     address private owner;
+    address private preSale;
     bool private isExchange;
     uint256 public rate;
 
     event Excahnge(address indexed sender, address indexed recipient, uint256 amount);
 
-    constructor(IERC20 _oldA, IERC20 _newB, address _owner){
+    constructor(IERC20 _oldA, IERC20 _newB, address _preSale){
         oldA = _oldA;
         newB = _newB;
-        owner = _owner;
+        owner = msg.sender;
+        preSale = _preSale;
         isExchange = false;
-        rate = 100000;
+        rate = 1000;
+    }
+
+    function getExchangeAmount(address account) external view returns(uint256){
+        return user[account];
     }
 
     function getExchange() public view returns(bool){
@@ -48,10 +54,10 @@ contract Exchange {
         uint256 excBalance = user[spender];
         uint256 exchangeAmount = (balanceOldA - excBalance)/rate;
         require(exchangeAmount > 0, "Exchange: Has been exchanged");
-        require(balanceNewB >= balanceOldA, "Exchange: The balance is insufficient and cannot be exchanged");
-        newB.transferFrom(owner, spender, exchangeAmount);
+        require(balanceNewB >= exchangeAmount, "Exchange: The balance is insufficient and cannot be exchanged");
+        newB.transferFrom(preSale, spender, exchangeAmount);
         user[spender] = balanceOldA;
-        emit Excahnge(owner, spender, exchangeAmount);
+        emit Excahnge(preSale, spender, exchangeAmount);
     }
 
 }

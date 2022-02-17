@@ -21,24 +21,27 @@ module.exports = async function (deployer) {
   const instanceBYDK = await BYDK.deployed();
   const erc20_ = instanceBYDK.address;
   // 0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b
+  // 0x9f22475dbbaa98e65a2C82B4dF2abc665A45986A
 
 
   // 预售合约
   const preSaleAddress_ = A                                               // 预售地址
   const airdropAddress_ = D                                               // 空投地址
   // const collectionAddress_ = "0x44a5e594146706Cf5d93Fa3d4B6D6d0fFC01b82d" // 预售收益总地址
-  const collectionAddress_ = "0x2ef414e68091F91Fc649877bb038a7Fa3c138592" // 预售收益总地址
+  const collectionAddress_ = "0x1619a5a9Ddd5d47cd2e9D2D1f41Ad615924101fE" // 预售收益总地址
   const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
   const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
   const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
   const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
   await deployer.deploy(PreSale, erc20_, preSaleAddress_, collectionAddress_, airdropAddress_, share1_, share2_, share3_, share4_);
   // 0xA6a8f5eEad44CDaDed5516184bF1427997bc7ec3 预售合约旧地址
-
+  // 0x222386C29Cd2b763039D9198878147Bf59F981F6
 
   // 置换合约
-  const oldAddress = "0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b"
+  // const oldAddress = "0xE3518Afd0a45439c737823c3EDcb85611FcEbB3b"
+  const oldAddress = "0x1c4c2c9585343100f3a21b06dd03b7ed8d47d590"
   await deployer.deploy(Exchange, oldAddress, erc20_, owner)
+  // 0xF2d750CEF41Df1349691915BD7E892A0BFc189B5
 
 
   // 锁仓合约

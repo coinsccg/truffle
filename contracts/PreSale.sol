@@ -361,13 +361,12 @@ contract PreSale {
         _preSaleAddress = preSaleAddress_;
         _airdropAddress = airdropAddress_;
         _collectionAddress = collectionAddress_;
-        _airdrop = 600*10**decimal;
-        _preSale = 12000*10**decimal;
+        _airdrop = 60000*10**decimal;
+        _preSale = 1200000*10**decimal;
         _share1 = share1_;
         _share2 = share2_;
         _share3 = share3_;
         _share4 = share4_;
-
 
         IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
         // Create a uniswap pair for this new token
@@ -412,14 +411,14 @@ contract PreSale {
 
     function airdrop(address recomm) external {
         address sender = msg.sender;
-        require(_airdrop >= 300*10**decimal, "PreSale: Airdrop has been issued");
+        require(_airdrop >= 3*10**(decimal - 1), "PreSale: Airdrop has been issued");
         require(!_isReceive[sender], "PreSale: The airdrop has been received and cannot be received again");
-        uint256 airdropAmount = 200*10**decimal;
+        uint256 airdropAmount = 2*10**(decimal - 1);
         if (recomm != address(0)) {
-            _erc20Balance[recomm] = _erc20Balance[recomm].add(100*10**decimal);
-            _airdrop = _airdrop.sub(100*10**decimal);
+            _erc20Balance[recomm] = _erc20Balance[recomm].add(10**(decimal - 1));
+            _airdrop = _airdrop.sub(10**(decimal - 1));
         }
-        _airdrop = _airdrop.sub(200*10**decimal);
+        _airdrop = _airdrop.sub(2*10**(decimal - 1));
         _isReceive[sender] = true;
         IERC20(_erc20).transferFrom(_airdropAddress, sender, airdropAmount);
         emit Airdrop(sender, airdropAmount);
@@ -428,11 +427,11 @@ contract PreSale {
     function buy(address share_, address recomm) payable external {
         address sender_ = msg.sender;
         uint256 buyAmount = msg.value;
-        uint256 price = 4;
+        uint256 price = 400;
 
         // 上线pancakeswap
         if (isPancakeswap){
-            (uint256 amountA,uint256 amountB,) = uniswapV2Pair.getReserves();
+            (uint112 amountA,uint112 amountB,) = uniswapV2Pair.getReserves();
             if (uniswapV2Pair.token0() == _erc20){
                 price = amountA / amountB;
             }else{

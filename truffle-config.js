@@ -17,7 +17,7 @@ module.exports = {
       network_id: "*",       // Any network (default: none)
     },
     testnet: {
-      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545/`),
       network_id: 97,
       confirmations: 10,
       timeoutBlocks: 2000,
@@ -46,7 +46,7 @@ module.exports = {
           enabled: true,
           runs: 200
         },
-        evmVersion: "byzantium"
+        evmVersion: "istanbul"
     }
   }
   }
