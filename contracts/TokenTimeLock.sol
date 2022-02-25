@@ -293,8 +293,8 @@ contract TokenTimelock {
     ) {
         _token = token_;
         _beneficiary = beneficiary_;
-        _target1 = 30000000*10**18;
-        _target2 = 680000000*10**18;
+        _target1 = 300000*10**18;
+        _target2 = 100000*10**18;
     }
 
     function token() public view returns (IERC20) {
@@ -310,13 +310,14 @@ contract TokenTimelock {
     }
 
     function release() public {
-        require(_token.totalSupply().sub(_target2) <= _target1, "TokenTimelock: The unlocking conditions are not met at present");
+        uint256 zeroBalance = _token.balanceOf(address(0));
+        require(_token.totalSupply().sub(zeroBalance) <= _target1, "TokenTimelock: The unlocking conditions are not met at present");
         if (_date <= 0){
             _date = block.timestamp;
             _releaseTime = _date;
             return;
         }
-        uint256 amount = token().balanceOf(address(this)); // 锁仓6.8亿
+        uint256 amount = token().balanceOf(address(this));
         require(amount > 0, "TokenTimelock: no tokens to release");
         uint256 releaseNum = amount.div(3*366).mul(block.timestamp.sub(_date).div(3600*24));
         if (amount < releaseNum){

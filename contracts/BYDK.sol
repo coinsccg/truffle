@@ -196,7 +196,7 @@ contract BYDK is Context, IERC20 {
 
         _rOwned[_owner] = _rTotal;
 
-        _burnMinLimit = 50000 * 10**_decimal;
+        _burnMinLimit = 10000 * 10**_decimal;
         _maxTxAmount = 500000 * 10 ** _decimal;
 
         _directPushFree = 2;
@@ -472,6 +472,7 @@ contract BYDK is Context, IERC20 {
         _reflectFee(feeRelection.rShareFree, taxFee.tShareFree);
         emit Transfer(sender, recipient, tTransferAmount);
     }
+    
     function _transferToExcluded(address sender, address recipient, uint256 tAmount) private {
         uint256 tTransferAmount = _getTValues(tAmount);
         TaxFee memory taxFee = calculateTaxFee(tAmount);
@@ -535,6 +536,7 @@ contract BYDK is Context, IERC20 {
         if (first != address(0)){
             _rOwned[first] = _rOwned[first].add(feeRelection.rDirectPushFree);
         }
+
         if (second != address(0)){
             _rOwned[second] = _rOwned[second].add(feeRelection.rIndirectPushFree);
         }
@@ -549,6 +551,4 @@ contract BYDK is Context, IERC20 {
             _rOwned[address(0)] = _rOwned[address(0)].add(feeRelection.rIndirectPushFree);
         }
     }
-
-
 }

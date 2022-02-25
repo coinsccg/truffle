@@ -321,22 +321,20 @@ contract PreSale {
     uint256 private _airdrop;
     uint256 private _preSale;
 
-    mapping (address => uint256) _erc20Balance;
-    mapping (address => bool) _isReceive;
-    mapping (address => uint256) _balance;
-    mapping (address => uint256) _buyBalance;
-    mapping (address => uint256) _share;
-    mapping (address => address) _shareFirst;
+    mapping (address => uint256) private _erc20Balance;
+    mapping (address => bool) private _isReceive;
+    mapping (address => uint256) private _balance;
+    mapping (address => uint256) private _buyBalance;
+    mapping (address => uint256) private _share;
+    mapping (address => address) private _shareFirst;
+    mapping (address => bool) private _isShareAddress;
 
     address private owner;
     address private _erc20;
+    address private _uniswapV2RouterAddress;
     address private _preSaleAddress;    // 私募地址
     address private _airdropAddress;    // 空投地址
     address private _collectionAddress; // 收款地址
-    address private _share1; // 股东1
-    address private _share2; // 股东2
-    address private _share3; // 股东3
-    address private _share4; // 股东4
 
     bool public isPancakeswap;
 
@@ -348,31 +346,18 @@ contract PreSale {
     event Withdraw(address indexed sender, uint256 amount);
     event Transfer(address indexed sender, uint256 amount);
 
-    constructor(
-        address erc20_, 
-        address preSaleAddress_, 
-        address collectionAddress_, 
-        address airdropAddress_, 
-        address share1_, 
-        address share2_, 
-        address share3_, 
-        address share4_){
+    constructor(address erc20_, address preSaleAddress_, address airdropAddress_, address collectionAddress_, address uniswapV2RouterAddress_){
         _erc20 = erc20_;
         _preSaleAddress = preSaleAddress_;
         _airdropAddress = airdropAddress_;
         _collectionAddress = collectionAddress_;
         _airdrop = 60000*10**decimal;
         _preSale = 1200000*10**decimal;
-        _share1 = share1_;
-        _share2 = share2_;
-        _share3 = share3_;
-        _share4 = share4_;
+        _uniswapV2RouterAddress = uniswapV2RouterAddress_;
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(uniswapV2RouterAddress_);
         // Create a uniswap pair for this new token
         uniswapV2Pair = IUniswapV2Pair(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(erc20_, _uniswapV2Router.WETH()));
-
-        // set the rest of the contract variables
         uniswapV2Router = _uniswapV2Router;
 
         isPancakeswap = false;
@@ -408,6 +393,17 @@ contract PreSale {
         require(msg.sender == owner, "PreSale: No permission");
         isPancakeswap = online;
     }
+
+    function setShareAddress(address account) external {
+        require(msg.sender == owner, "PreSale: No permission");
+        require(!_isShareAddress[account], "PreSale: Already exists");
+        _isShareAddress[account] = true;
+    }
+
+    function getIsShareAddress(address account) public view returns(bool){
+        return _isShareAddress[account];
+    }
+
 
     function airdrop(address recomm) external {
         address sender = msg.sender;
@@ -445,7 +441,7 @@ contract PreSale {
         require((10*10**decimal).sub(buyBalance) >= buyAmount, "Presale: The purchase quantity has been operated 10 BNB");
         require(_preSale >= amount, "PreSale: Sell out");
         uint256 recommFree;
-        if (share_ == _share1 || share_ == _share2 || share_ == _share3 || share_ == _share4){
+        if (getIsShareAddress(share_)){
             _share[share_] = _share[share_].add(buyAmount);
             if (_shareFirst[sender_] == address(0)){
                 _shareFirst[sender_] = share_;

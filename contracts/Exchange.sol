@@ -22,7 +22,7 @@ contract Exchange {
     bool private isExchange;
     uint256 public rate;
 
-    event Excahnge(address indexed sender, address indexed recipient, uint256 amount);
+    event ExchangeEvent(address indexed sender, address indexed recipient, uint256 amount);
 
     constructor(IERC20 _oldA, IERC20 _newB, address _preSale){
         oldA = _oldA;
@@ -50,14 +50,14 @@ contract Exchange {
         require(getExchange(), "Exchange: Close exchange");
         address spender = msg.sender;
         uint256 balanceOldA = oldA.balanceOf(spender);
-        uint256 balanceNewB = newB.balanceOf(owner);
+        uint256 balanceNewB = newB.balanceOf(preSale);
         uint256 excBalance = user[spender];
         uint256 exchangeAmount = (balanceOldA - excBalance)/rate;
         require(exchangeAmount > 0, "Exchange: Has been exchanged");
         require(balanceNewB >= exchangeAmount, "Exchange: The balance is insufficient and cannot be exchanged");
         newB.transferFrom(preSale, spender, exchangeAmount);
         user[spender] = balanceOldA;
-        emit Excahnge(preSale, spender, exchangeAmount);
+        emit ExchangeEvent(preSale, spender, exchangeAmount);
     }
 
 }
