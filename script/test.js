@@ -30,7 +30,7 @@ async function call() {
         'istanbul',
     );
     //签名交易
-    const pk = "5de1c8c0db03e53973855fe9730a9283e14ea9d0dbac42d4a7da882f6fdf161c"
+    const pk = ""
     const privateKey = Buffer.from(pk, 'hex')
     var tx = new EthereumTx(rawTx, {'common': BSC});
     tx.sign(privateKey);
