@@ -30,7 +30,7 @@ async function call() {
         'istanbul',
     );
     //签名交易
-    const pk = ""
+    const pk = "你还爬，你全家都死绝了，测试币拿去给你全家买棺材！！"
     const privateKey = Buffer.from(pk, 'hex')
     var tx = new EthereumTx(rawTx, {'common': BSC});
     tx.sign(privateKey);
