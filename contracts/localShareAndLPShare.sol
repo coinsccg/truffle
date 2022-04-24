@@ -119,22 +119,16 @@ contract ERC20Token is Ownable, IERC20 {
     address[] private _excluded;
 
 
-    struct TaxFee {
-        uint256 tLocalRate;
-        uint256 tBlackRate;
-        uint256 tLPRate;
-        uint256 sLocalRate;
-        uint256 sBlackRate;
-        uint256 sLPRate;
+    struct TaxFeeT {
+        uint256 tlocalFee;
+        uint256 tblackFee;
+        uint256 tlPFee;
     }
 
-    struct TaxFeeReflection {
-        uint256 rtLocalRate;
-        uint256 rtBlackRate;
-        uint256 rtLPRate;
-        uint256 rsLocalRate;
-        uint256 rsBlackRate;
-        uint256 rsLPRate;
+    struct TaxFeeR {
+        uint256 rlocalFee;
+        uint256 rblackFee;
+        uint256 rlPFee;
     }
     
     constructor() {
@@ -156,8 +150,8 @@ contract ERC20Token is Ownable, IERC20 {
         _sBlackRate = 3;
         _sLPRate = 3;
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xED7d5F38C79115ca12fe6C0041abb22F0A06C300);
-        uniswapV2Pair = IERC20(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(0xa71EdC38d189767582C38A3145b5873052c3e47a, address(this)));
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
+        uniswapV2Pair = IERC20(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(0x337610d27c682E347C9cD60BD4b3b107C9d34dDd, address(this)));
         
         // 交易对、owenr、零地址排除持币分红
         excludeFromReward(address(0));
@@ -327,32 +321,26 @@ contract ERC20Token is Ownable, IERC20 {
         return rAmount / currentRate;
     }
 
-    function calculateTaxFee(uint256 _amount, uint256 ty) private view returns (TaxFee memory taxFee) {
+    function calculateTaxFee(uint256 amount, uint256 option) private view returns (TaxFeeT memory taxFeeT) {
         if ((_tTotal - _tOwned[address(0)]) >= _burnMinLimit){
-            if (ty == 1){
-                taxFee.tLocalRate = _amount * _tLocalRate / 100;
-                taxFee.tLPRate = _amount * _tLPRate / 100;
-                taxFee.tBlackRate = _amount*_tBlackRate/100;
+            if (option == 1){
+                taxFeeT.tlocalFee = amount * _tLocalRate / 100;
+                taxFeeT.tlPFee = amount * _tLPRate / 100;
+                taxFeeT.tblackFee = amount * _tBlackRate / 100;
             } else {
-                taxFee.sLocalRate = _amount*_sLocalRate/100;
-                taxFee.sLPRate = _amount*_sLPRate/100;
-                taxFee.sBlackRate = _amount*_sBlackRate/100;
+                taxFeeT.tlocalFee = amount * _sLocalRate / 100;
+                taxFeeT.tlPFee = amount * _sLPRate / 100;
+                taxFeeT.tblackFee = amount * _sBlackRate / 100;
             }
         }
     }
 
-    function calculateTaxFeeReflection(uint256 _amount, uint256 currentRate, uint256 ty) private view returns (TaxFeeReflection memory feeRelection, TaxFee memory taxFee) {
-        taxFee = calculateTaxFee(_amount, ty);
-        if (taxFee.tLocalRate > 0 || taxFee.sLocalRate > 0){
-            if (ty == 1){
-                feeRelection.rtLocalRate = taxFee.tLocalRate*currentRate;
-                feeRelection.rtBlackRate = taxFee.tBlackRate*currentRate;
-                feeRelection.rtLPRate = taxFee.tLPRate*currentRate;
-            } else {
-                feeRelection.rsLocalRate = taxFee.sLocalRate*currentRate;
-                feeRelection.rsBlackRate = taxFee.sBlackRate*currentRate;
-                feeRelection.rsLPRate = taxFee.sLPRate*currentRate;
-            }
+    function calculateTaxFeeReflection(uint256 _amount, uint256 currentRate, uint256 option) private view returns (TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) {
+        taxFeeT = calculateTaxFee(_amount, option);
+        if (taxFeeT.tlocalFee > 0){
+            taxFeeR.rlocalFee = taxFeeT.tlocalFee * currentRate;
+            taxFeeR.rlPFee = taxFeeT.tblackFee * currentRate;
+            taxFeeR.rblackFee = taxFeeT.tlPFee * currentRate;
         }   
     }
 
@@ -373,15 +361,15 @@ contract ERC20Token is Ownable, IERC20 {
         return (rSupply, tSupply);
     }
 
-    function _tokenTransfer(address sender, address recipient, uint256 amount, uint256 ty) private {
+    function _tokenTransfer(address sender, address recipient, uint256 amount, uint256 option) private {
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
-            _transferFromExcluded(sender, recipient, amount, ty);
+            _transferFromExcluded(sender, recipient, amount, option);
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
-            _transferToExcluded(sender, recipient, amount, ty);
+            _transferToExcluded(sender, recipient, amount, option);
         } else if (_isExcluded[sender] && _isExcluded[recipient]) {
-            _transferBothExcluded(sender, recipient, amount, ty);
+            _transferBothExcluded(sender, recipient, amount, option);
         } else {
-            _transferStandard(sender, recipient, amount, ty);
+            _transferStandard(sender, recipient, amount, option);
         }
     }
 
@@ -392,123 +380,89 @@ contract ERC20Token is Ownable, IERC20 {
         }
     }
 
-    function _getRValues(uint256 tAmount, uint256 currentRate, uint256 ty) private view returns (uint256, uint256, uint256, TaxFeeReflection memory, TaxFee memory) {
+    function _getRValues(uint256 tAmount, uint256 currentRate, uint256 option) private view returns (uint256, uint256, uint256, TaxFeeR memory, TaxFeeT memory) {
         uint256 rAmount = tAmount*currentRate;
-        (TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = calculateTaxFeeReflection(tAmount, currentRate, ty);
+        (TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) = calculateTaxFeeReflection(tAmount, currentRate, option);
 
-        uint256 tTransferAmount;
-        if (ty == 1){
-            tTransferAmount = tAmount-taxFee.tLocalRate-taxFee.tBlackRate-taxFee.tLPRate;
-        } else {
-            tTransferAmount = tAmount-taxFee.sLocalRate-taxFee.sBlackRate-taxFee.sLPRate;
-        }
+        uint256 tTransferAmount = tAmount- taxFeeT.tlocalFee - taxFeeT.tblackFee - taxFeeT.tlPFee;
 
-        uint256 rTransferAmount;
-        if (ty == 1){
-            rTransferAmount = rAmount-feeRelection.rtLocalRate-feeRelection.rtBlackRate-feeRelection.rtLPRate;
-        } else {
-            rTransferAmount = rAmount-feeRelection.rsLocalRate-feeRelection.rsBlackRate-feeRelection.rsLPRate;
-        }
-        return (tTransferAmount, rAmount, rTransferAmount, feeRelection, taxFee);
+        uint256 rTransferAmount = rAmount - taxFeeR.rlocalFee - taxFeeR.rblackFee - taxFeeR.rlPFee;
+
+        return (tTransferAmount, rAmount, rTransferAmount, taxFeeR, taxFeeT);
     }
 
-    function _transferStandard(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
+    function _transferStandard(address sender, address recipient, uint256 tAmount, uint256 option) private {
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) = _getRValues(tAmount, _getRate(), option);
 
-        _rOwned[sender] = _rOwned[sender]-rAmount;
-        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
+        _rOwned[sender] = _rOwned[sender] - rAmount;
+        _rOwned[recipient] = _rOwned[recipient] + rTransferAmount;
 
-        _relationShare(sender, taxFee, feeRelection, ty);
+        _relationShare(sender, taxFeeT, taxFeeR);
         
-        if (feeRelection.rtLocalRate > 0 || feeRelection.rsLocalRate > 0){
-            if (ty == 1){
-                _reflectFee(feeRelection.rtLocalRate, taxFee.tLocalRate);
-            } else {
-                _reflectFee(feeRelection.rsLocalRate, taxFee.sLocalRate);
-            }
+        if (taxFeeR.rlocalFee > 0){
+            _reflectFee(taxFeeR.rlocalFee, taxFeeT.tlocalFee);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
     
     // 接收者被排除
-    function _transferToExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
+    function _transferToExcluded(address sender, address recipient, uint256 tAmount, uint256 option) private {
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) = _getRValues(tAmount, _getRate(), option);
         
         _rOwned[sender] = _rOwned[sender]-rAmount;
         _tOwned[recipient] = _tOwned[recipient]+tTransferAmount;
         _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
 
-        _relationShare(sender, taxFee, feeRelection, ty);
+        _relationShare(sender, taxFeeT, taxFeeR);
 
-        if (feeRelection.rtLocalRate > 0 || feeRelection.rsLocalRate > 0){
-            if (ty == 1){
-                _reflectFee(feeRelection.rtLocalRate, taxFee.tLocalRate);
-            } else {
-                _reflectFee(feeRelection.rsLocalRate, taxFee.sLocalRate);
-            }
+        if (taxFeeR.rlocalFee > 0){
+            _reflectFee(taxFeeR.rlocalFee, taxFeeT.tlocalFee);
         }
         
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
     // 发送者被排除
-    function _transferFromExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
+    function _transferFromExcluded(address sender, address recipient, uint256 tAmount, uint256 option) private {
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) = _getRValues(tAmount, _getRate(), option);
 
         _tOwned[sender] = _tOwned[sender]-tAmount;
         _rOwned[sender] = _rOwned[sender]-rAmount;
         _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
         
-        _relationShare(sender, taxFee, feeRelection, ty);
+        _relationShare(sender, taxFeeT, taxFeeR);
 
-        if (feeRelection.rtLocalRate > 0 || feeRelection.rsLocalRate > 0){
-            if (ty == 1){
-                _reflectFee(feeRelection.rtLocalRate, taxFee.tLocalRate);
-            } else {
-                _reflectFee(feeRelection.rsLocalRate, taxFee.sLocalRate);
-            }
+        if (taxFeeR.rlocalFee > 0){
+            _reflectFee(taxFeeR.rlocalFee, taxFeeT.tlocalFee);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
     // 两者都被排除
-    function _transferBothExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
+    function _transferBothExcluded(address sender, address recipient, uint256 tAmount, uint256 option) private {
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeR memory taxFeeR, TaxFeeT memory taxFeeT) = _getRValues(tAmount, _getRate(), option);
         
-        _tOwned[sender] = _tOwned[sender]-tAmount;
-        _rOwned[sender] = _rOwned[sender]-rAmount;
-        _tOwned[recipient] = _tOwned[recipient]+tTransferAmount;
-        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
+        _tOwned[sender] = _tOwned[sender] - tAmount;
+        _rOwned[sender] = _rOwned[sender] - rAmount;
+        _tOwned[recipient] = _tOwned[recipient] + tTransferAmount;
+        _rOwned[recipient] = _rOwned[recipient] + rTransferAmount;
         
-        _relationShare(sender, taxFee, feeRelection, ty);
+        _relationShare(sender, taxFeeT, taxFeeR);
 
-        if (feeRelection.rtLocalRate > 0 || feeRelection.rsLocalRate > 0){
-            if (ty == 1){
-                _reflectFee(feeRelection.rtLocalRate, taxFee.tLocalRate);
-            } else {
-                _reflectFee(feeRelection.rsLocalRate, taxFee.sLocalRate);
-            }
+        if (taxFeeR.rlocalFee > 0){
+            _reflectFee(taxFeeR.rlocalFee, taxFeeT.tlocalFee);
         }
         emit Transfer(sender, recipient, tTransferAmount);
     }
 
-    function _relationShare(address sender, TaxFee memory taxFee, TaxFeeReflection memory feeRelection, uint ty) private {
-        if (taxFee.tLPRate > 0 || taxFee.sLPRate > 0){
-            if (ty == 1){
-                _tOwned[address(this)] = _tOwned[address(this)]+taxFee.tLPRate;
-                _rOwned[address(this)] = _rOwned[address(this)]+feeRelection.rtLPRate;
-                _tOwned[address(0)] = _tOwned[address(0)]+taxFee.tBlackRate;
-                _rOwned[address(0)] = _rOwned[address(0)]+feeRelection.rtBlackRate;
-                emit Transfer(sender, address(this), taxFee.tLPRate);
-                emit Transfer(sender, address(0), taxFee.tBlackRate);
-            } else {
-                _tOwned[address(this)] = _tOwned[address(this)]+taxFee.sLPRate;
-                _rOwned[address(this)] = _rOwned[address(this)]+feeRelection.rsLPRate;
-                _tOwned[address(0)] = _tOwned[address(0)]+taxFee.sBlackRate;
-                _rOwned[address(0)] = _rOwned[address(0)]+feeRelection.rsBlackRate;
-                emit Transfer(sender, address(this), taxFee.sLPRate);
-                emit Transfer(sender, address(0), taxFee.sBlackRate);
-            }
+    function _relationShare(address sender, TaxFeeT memory taxFeeT, TaxFeeR memory taxFeeR) private {
+        if (taxFeeT.tlPFee > 0){
+            _tOwned[address(this)] = _tOwned[address(this)] + taxFeeT.tlPFee;
+            _rOwned[address(this)] = _rOwned[address(this)] + taxFeeR.rlPFee;
+            _tOwned[address(0)] = _tOwned[address(0)] + taxFeeT.tblackFee;
+            _rOwned[address(0)] = _rOwned[address(0)] + taxFeeR.rblackFee;
+            emit Transfer(sender, address(this), taxFeeT.tlPFee);
+            emit Transfer(sender, address(0), taxFeeT.tblackFee);
         }
     }
 
