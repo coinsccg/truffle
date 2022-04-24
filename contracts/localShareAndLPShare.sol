@@ -102,14 +102,6 @@ contract ERC20Token is Ownable, IERC20 {
     uint256 public _sBlackRate;
     uint256 public _sLPRate;
 
-    uint256 private _tLocalPreRate;
-    uint256 private _tBlackPreRate;
-    uint256 private _tLPPreRate;
-
-    uint256 private _sLocalPreRate;
-    uint256 private _sBlackPreRate;
-    uint256 private _sLPPreRate;
-
     mapping (address => uint256) private _rOwned;
     mapping (address => uint256) private _tOwned;
     mapping (address => bool) private _isExcluded;
@@ -267,7 +259,6 @@ contract ERC20Token is Ownable, IERC20 {
             } else {
                 addLpProvider(sender);
             }
-            
         } else {
             _tokenTransfer(sender, recipient, amount, 1);
         }
