@@ -150,8 +150,8 @@ contract ERC20Token is Ownable, IERC20 {
         _sBlackRate = 3;
         _sLPRate = 3;
 
-        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3);
-        uniswapV2Pair = IERC20(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(0x337610d27c682E347C9cD60BD4b3b107C9d34dDd, address(this)));
+        IUniswapV2Router02 _uniswapV2Router = IUniswapV2Router02(0xED7d5F38C79115ca12fe6C0041abb22F0A06C300);
+        uniswapV2Pair = IERC20(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(0xa71EdC38d189767582C38A3145b5873052c3e47a, address(this)));
         
         // 交易对、owenr、零地址排除持币分红
         excludeFromReward(address(0));
@@ -274,7 +274,7 @@ contract ERC20Token is Ownable, IERC20 {
 
         // LP分红
         if (sender != address(this)) {
-            processLP(500000);
+            executeLpShare(500000);
         }
     }
 
@@ -480,22 +480,19 @@ contract ERC20Token is Ownable, IERC20 {
 
     uint256 private currentIndex;
     uint256 private lpRewardCondition = 10;
-    uint256 private progressLPBlock;
+    uint256 private lastBlockNum;
 
-    //执行LP分红，使用 gas(500000) 单位 gasLimit 去执行LP分红
-    function processLP(uint256 gas) private {
-        //间隔 10 分钟分红一次
-        if (progressLPBlock + 200 > block.number) {
+    //执行LP分红
+    function executeLpShare(uint256 gas) private {
+        if (lastBlockNum + 200 > block.number) {
             return;
         }
-        //交易对没有余额
         uint totalPair = uniswapV2Pair.totalSupply();
         if (totalPair == 0) {
             return;
         }
 
         uint256 balance = balanceOf(address(this));
-        //分红小于分配条件，一般太少也就不分配
         if (balance < lpRewardCondition) {
             return;
         }
@@ -523,7 +520,6 @@ contract ERC20Token is Ownable, IERC20 {
             //不在排除列表，才分红
             if (pairBalance > 0 && !excludeLpProvider[shareHolder]) {
                 amount = balance * pairBalance / totalPair;
-                //分红大于0进行分配，最小精度
                 if (amount > 0) {
                     _tokenTransfer(address(this), shareHolder, amount, 1);
                 }
@@ -535,7 +531,7 @@ contract ERC20Token is Ownable, IERC20 {
             iterations++;
         }
 
-        progressLPBlock = block.number;
+        lastBlockNum = block.number;
     }
 
     //是否排除LP分红
