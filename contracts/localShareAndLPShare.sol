@@ -51,103 +51,6 @@ contract Ownable is Context {
     }
 }
 
-
-library SafeMath {
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
-        }
-    }
-
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
-        }
-    }
-
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
-        }
-    }
-
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a + b;
-    }
-
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a - b;
-    }
-
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a * b;
-    }
-
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a / b;
-    }
-
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a % b;
-    }
-
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b <= a, errorMessage);
-            return a - b;
-        }
-    }
-
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a / b;
-        }
-    }
-
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        unchecked {
-            require(b > 0, errorMessage);
-            return a % b;
-        }
-    }
-}
-
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address account) external view returns (uint256);
@@ -175,8 +78,6 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {}
 
 
 contract ERC20Token is Ownable, IERC20 {
-    using SafeMath for uint256;
-
     mapping(address => mapping(address => uint256)) private _allowances;
 
     uint8 private _decimal = 18;
@@ -423,41 +324,41 @@ contract ERC20Token is Ownable, IERC20 {
     function tokenFromReflection(uint256 rAmount) public view returns(uint256) {
         require(rAmount <= _rTotal, "Amount must be less than total reflections");
         uint256 currentRate =  _getRate();
-        return rAmount.div(currentRate);
+        return rAmount / currentRate;
     }
 
     function calculateTaxFee(uint256 _amount, uint256 ty) private view returns (TaxFee memory taxFee) {
         if ((_tTotal - _tOwned[address(0)]) >= _burnMinLimit){
             if (ty == 1){
-                taxFee.tLocalRate = _amount.mul(_tLocalRate).div(100);
-                taxFee.tLPRate = _amount.mul(_tLPRate).div(100);
-                taxFee.tBlackRate = _amount.mul(_tBlackRate).div(100);
+                taxFee.tLocalRate = _amount * _tLocalRate / 100;
+                taxFee.tLPRate = _amount * _tLPRate / 100;
+                taxFee.tBlackRate = _amount*_tBlackRate/100;
             } else {
-                taxFee.sLocalRate = _amount.mul(_sLocalRate).div(100);
-                taxFee.sLPRate = _amount.mul(_sLPRate).div(100);
-                taxFee.sBlackRate = _amount.mul(_sBlackRate).div(100);
+                taxFee.sLocalRate = _amount*_sLocalRate/100;
+                taxFee.sLPRate = _amount*_sLPRate/100;
+                taxFee.sBlackRate = _amount*_sBlackRate/100;
             }
         }
     }
 
-    function calculateTaxFeeReflection(uint256 _amount, uint256 currentRate, uint256 ty) private view returns (TaxFeeReflection memory feeRelection) {
-        TaxFee memory taxFee = calculateTaxFee(_amount, ty);
+    function calculateTaxFeeReflection(uint256 _amount, uint256 currentRate, uint256 ty) private view returns (TaxFeeReflection memory feeRelection, TaxFee memory taxFee) {
+        taxFee = calculateTaxFee(_amount, ty);
         if (taxFee.tLocalRate > 0 || taxFee.sLocalRate > 0){
             if (ty == 1){
-                feeRelection.rtLocalRate = taxFee.tLocalRate.mul(currentRate);
-                feeRelection.rtBlackRate = taxFee.tBlackRate.mul(currentRate);
-                feeRelection.rtLPRate = taxFee.tLPRate.mul(currentRate);
+                feeRelection.rtLocalRate = taxFee.tLocalRate*currentRate;
+                feeRelection.rtBlackRate = taxFee.tBlackRate*currentRate;
+                feeRelection.rtLPRate = taxFee.tLPRate*currentRate;
             } else {
-                feeRelection.rsLocalRate = taxFee.sLocalRate.mul(currentRate);
-                feeRelection.rsBlackRate = taxFee.sBlackRate.mul(currentRate);
-                feeRelection.rsLPRate = taxFee.sLPRate.mul(currentRate);
+                feeRelection.rsLocalRate = taxFee.sLocalRate*currentRate;
+                feeRelection.rsBlackRate = taxFee.sBlackRate*currentRate;
+                feeRelection.rsLPRate = taxFee.sLPRate*currentRate;
             }
         }   
     }
 
     function _getRate() private view returns(uint256) {
         (uint256 rSupply, uint256 tSupply) = _getCurrentSupply();
-        return rSupply.div(tSupply);
+        return rSupply / tSupply;
     }
 
     function _getCurrentSupply() private view returns(uint256, uint256) {
@@ -465,10 +366,10 @@ contract ERC20Token is Ownable, IERC20 {
         uint256 tSupply = _tTotal;
         for (uint256 i = 0; i < _excluded.length; i++) {
             if (_rOwned[_excluded[i]] > rSupply || _tOwned[_excluded[i]] > tSupply) return (_rTotal, _tTotal);
-            rSupply = rSupply.sub(_rOwned[_excluded[i]]);
-            tSupply = tSupply.sub(_tOwned[_excluded[i]]);
+            rSupply = rSupply-_rOwned[_excluded[i]];
+            tSupply = tSupply-_tOwned[_excluded[i]];
         }
-        if (rSupply < _rTotal.div(_tTotal)) return (_rTotal, _tTotal); // rTotal - m * (rTotal/tTotal) >= rTotal/tTotal ==> m <= tTotal
+        if (rSupply < _rTotal / _tTotal) return (_rTotal, _tTotal); // rTotal - m * (rTotal/tTotal) >= rTotal/tTotal ==> m <= tTotal
         return (rSupply, tSupply);
     }
 
@@ -486,42 +387,36 @@ contract ERC20Token is Ownable, IERC20 {
 
     function _reflectFee(uint256 rShareFree, uint256 tShareFree) private {
         if (rShareFree > 0){
-            _rTotal = _rTotal.sub(rShareFree);
-            _tFeeTotal = _tFeeTotal.add(tShareFree);
+            _rTotal = _rTotal-rShareFree;
+            _tFeeTotal = _tFeeTotal+tShareFree;
         }
     }
 
-    function _getTValues(uint256 tAmount, uint256 ty) private view returns (uint256) {
-        TaxFee memory taxFee = calculateTaxFee(tAmount, ty);
+    function _getRValues(uint256 tAmount, uint256 currentRate, uint256 ty) private view returns (uint256, uint256, uint256, TaxFeeReflection memory, TaxFee memory) {
+        uint256 rAmount = tAmount*currentRate;
+        (TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = calculateTaxFeeReflection(tAmount, currentRate, ty);
+
         uint256 tTransferAmount;
         if (ty == 1){
-            tTransferAmount = tAmount.sub(taxFee.tLocalRate).sub(taxFee.tBlackRate).sub(taxFee.tLPRate);
+            tTransferAmount = tAmount-taxFee.tLocalRate-taxFee.tBlackRate-taxFee.tLPRate;
         } else {
-            tTransferAmount = tAmount.sub(taxFee.sLocalRate).sub(taxFee.sBlackRate).sub(taxFee.sLPRate);
+            tTransferAmount = tAmount-taxFee.sLocalRate-taxFee.sBlackRate-taxFee.sLPRate;
         }
-        return tTransferAmount;
-    }
 
-    function _getRValues(uint256 tAmount, uint256 currentRate, uint256 ty) private view returns (uint256, uint256) {
-        uint256 rAmount = tAmount.mul(currentRate);
-        TaxFeeReflection memory feeRelection = calculateTaxFeeReflection(tAmount, currentRate, ty);
         uint256 rTransferAmount;
         if (ty == 1){
-            rTransferAmount = rAmount.sub(feeRelection.rtLocalRate).sub(feeRelection.rtBlackRate).sub(feeRelection.rtLPRate);
+            rTransferAmount = rAmount-feeRelection.rtLocalRate-feeRelection.rtBlackRate-feeRelection.rtLPRate;
         } else {
-            rTransferAmount = rAmount.sub(feeRelection.rsLocalRate).sub(feeRelection.rsBlackRate).sub(feeRelection.rsLPRate);
+            rTransferAmount = rAmount-feeRelection.rsLocalRate-feeRelection.rsBlackRate-feeRelection.rsLPRate;
         }
-        return (rAmount, rTransferAmount);
+        return (tTransferAmount, rAmount, rTransferAmount, feeRelection, taxFee);
     }
 
     function _transferStandard(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        uint256 tTransferAmount = _getTValues(tAmount, ty);
-        TaxFee memory taxFee = calculateTaxFee(tAmount, ty);
-        (uint256 rAmount, uint256 rTransferAmount) = _getRValues(tAmount, _getRate(), ty);
-        TaxFeeReflection memory feeRelection = calculateTaxFeeReflection(tAmount,  _getRate(), ty);
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
 
-        _rOwned[sender] = _rOwned[sender].sub(rAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
+        _rOwned[sender] = _rOwned[sender]-rAmount;
+        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
 
         _relationShare(sender, taxFee, feeRelection, ty);
         
@@ -537,14 +432,11 @@ contract ERC20Token is Ownable, IERC20 {
     
     // 接收者被排除
     function _transferToExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        uint256 tTransferAmount = _getTValues(tAmount, ty);
-        TaxFee memory taxFee = calculateTaxFee(tAmount, ty);
-        (uint256 rAmount, uint256 rTransferAmount) = _getRValues(tAmount, _getRate(), ty);
-        TaxFeeReflection memory feeRelection = calculateTaxFeeReflection(tAmount,  _getRate(), ty);
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
         
-        _rOwned[sender] = _rOwned[sender].sub(rAmount);
-        _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
+        _rOwned[sender] = _rOwned[sender]-rAmount;
+        _tOwned[recipient] = _tOwned[recipient]+tTransferAmount;
+        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
 
         _relationShare(sender, taxFee, feeRelection, ty);
 
@@ -561,14 +453,11 @@ contract ERC20Token is Ownable, IERC20 {
 
     // 发送者被排除
     function _transferFromExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        uint256 tTransferAmount = _getTValues(tAmount, ty);
-        TaxFee memory taxFee = calculateTaxFee(tAmount, ty);
-        (uint256 rAmount, uint256 rTransferAmount) = _getRValues(tAmount, _getRate(), ty);
-        TaxFeeReflection memory feeRelection = calculateTaxFeeReflection(tAmount,  _getRate(), ty);
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
 
-        _tOwned[sender] = _tOwned[sender].sub(tAmount);
-        _rOwned[sender] = _rOwned[sender].sub(rAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
+        _tOwned[sender] = _tOwned[sender]-tAmount;
+        _rOwned[sender] = _rOwned[sender]-rAmount;
+        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
         
         _relationShare(sender, taxFee, feeRelection, ty);
 
@@ -584,15 +473,12 @@ contract ERC20Token is Ownable, IERC20 {
 
     // 两者都被排除
     function _transferBothExcluded(address sender, address recipient, uint256 tAmount, uint256 ty) private {
-        uint256 tTransferAmount = _getTValues(tAmount, ty);
-        TaxFee memory taxFee = calculateTaxFee(tAmount, ty);
-        (uint256 rAmount, uint256 rTransferAmount) = _getRValues(tAmount, _getRate(), ty);
-        TaxFeeReflection memory feeRelection = calculateTaxFeeReflection(tAmount,  _getRate(), ty);
+        (uint256 tTransferAmount, uint256 rAmount, uint256 rTransferAmount, TaxFeeReflection memory feeRelection, TaxFee memory taxFee) = _getRValues(tAmount, _getRate(), ty);
         
-        _tOwned[sender] = _tOwned[sender].sub(tAmount);
-        _rOwned[sender] = _rOwned[sender].sub(rAmount);
-        _tOwned[recipient] = _tOwned[recipient].add(tTransferAmount);
-        _rOwned[recipient] = _rOwned[recipient].add(rTransferAmount);
+        _tOwned[sender] = _tOwned[sender]-tAmount;
+        _rOwned[sender] = _rOwned[sender]-rAmount;
+        _tOwned[recipient] = _tOwned[recipient]+tTransferAmount;
+        _rOwned[recipient] = _rOwned[recipient]+rTransferAmount;
         
         _relationShare(sender, taxFee, feeRelection, ty);
 
@@ -609,17 +495,17 @@ contract ERC20Token is Ownable, IERC20 {
     function _relationShare(address sender, TaxFee memory taxFee, TaxFeeReflection memory feeRelection, uint ty) private {
         if (taxFee.tLPRate > 0 || taxFee.sLPRate > 0){
             if (ty == 1){
-                _tOwned[address(this)] = _tOwned[address(this)].add(taxFee.tLPRate);
-                _rOwned[address(this)] = _rOwned[address(this)].add(feeRelection.rtLPRate);
-                _tOwned[address(0)] = _tOwned[address(0)].add(taxFee.tBlackRate);
-                _rOwned[address(0)] = _rOwned[address(0)].add(feeRelection.rtBlackRate);
+                _tOwned[address(this)] = _tOwned[address(this)]+taxFee.tLPRate;
+                _rOwned[address(this)] = _rOwned[address(this)]+feeRelection.rtLPRate;
+                _tOwned[address(0)] = _tOwned[address(0)]+taxFee.tBlackRate;
+                _rOwned[address(0)] = _rOwned[address(0)]+feeRelection.rtBlackRate;
                 emit Transfer(sender, address(this), taxFee.tLPRate);
                 emit Transfer(sender, address(0), taxFee.tBlackRate);
             } else {
-                _tOwned[address(this)] = _tOwned[address(this)].add(taxFee.sLPRate);
-                _rOwned[address(this)] = _rOwned[address(this)].add(feeRelection.rsLPRate);
-                _tOwned[address(0)] = _tOwned[address(0)].add(taxFee.sBlackRate);
-                _rOwned[address(0)] = _rOwned[address(0)].add(feeRelection.rsBlackRate);
+                _tOwned[address(this)] = _tOwned[address(this)]+taxFee.sLPRate;
+                _rOwned[address(this)] = _rOwned[address(this)]+feeRelection.rsLPRate;
+                _tOwned[address(0)] = _tOwned[address(0)]+taxFee.sBlackRate;
+                _rOwned[address(0)] = _rOwned[address(0)]+feeRelection.rsBlackRate;
                 emit Transfer(sender, address(this), taxFee.sLPRate);
                 emit Transfer(sender, address(0), taxFee.sBlackRate);
             }
