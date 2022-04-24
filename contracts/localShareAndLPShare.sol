@@ -109,6 +109,7 @@ contract ERC20Token is Ownable, IERC20 {
     IERC20 public uniswapV2Pair;
 
     address[] private _excluded;
+    address public deadAddress = 0x000000000000000000000000000000000000dEaD;
 
 
     struct TaxFeeT {
@@ -129,7 +130,8 @@ contract ERC20Token is Ownable, IERC20 {
         _tTotal = 95557_0000_0000_0000 * 10**_decimal;
         _rTotal = (MAX - (MAX % _tTotal));
 
-        _rOwned[owner] = _rTotal;
+        _rOwned[owner] = _rTotal/2;
+        _rOwned[deadAddress] = _rTotal/2;
 
         _burnMinLimit = 100_0000_0000 * 10**_decimal;
         _maxTxAmount = 1000_0000_0000 * 10**_decimal;
@@ -146,14 +148,15 @@ contract ERC20Token is Ownable, IERC20 {
         uniswapV2Pair = IERC20(IUniswapV2Factory(_uniswapV2Router.factory()).createPair(0xa71EdC38d189767582C38A3145b5873052c3e47a, address(this)));
         
         // 交易对、owenr、零地址排除持币分红
-        excludeFromReward(address(0));
+        excludeFromReward(deadAddress);
         excludeFromReward(address(this));
         excludeFromReward(address(owner));
         excludeFromReward(address(uniswapV2Pair));
 
-        excludeLpProvider[address(0)] = true;
+        excludeLpProvider[deadAddress] = true;
 
         emit Transfer(address(0), owner, _tTotal);
+        emit Transfer(owner, deadAddress, _tTotal/2);
     }
 
 
@@ -313,7 +316,7 @@ contract ERC20Token is Ownable, IERC20 {
     }
 
     function calculateTaxFee(uint256 amount, uint256 option) private view returns (TaxFeeT memory taxFeeT) {
-        if ((_tTotal - _tOwned[address(0)]) >= _burnMinLimit){
+        if ((_tTotal - _tOwned[deadAddress]) > _burnMinLimit){
             if (option == 1){
                 taxFeeT.tlocalFee = amount * _tLocalRate / 100;
                 taxFeeT.tlPFee = amount * _tLPRate / 100;
@@ -450,10 +453,10 @@ contract ERC20Token is Ownable, IERC20 {
         if (taxFeeT.tlPFee > 0){
             _tOwned[address(this)] = _tOwned[address(this)] + taxFeeT.tlPFee;
             _rOwned[address(this)] = _rOwned[address(this)] + taxFeeR.rlPFee;
-            _tOwned[address(0)] = _tOwned[address(0)] + taxFeeT.tblackFee;
-            _rOwned[address(0)] = _rOwned[address(0)] + taxFeeR.rblackFee;
+            _tOwned[deadAddress] = _tOwned[deadAddress] + taxFeeT.tblackFee;
+            _rOwned[deadAddress] = _rOwned[deadAddress] + taxFeeR.rblackFee;
             emit Transfer(sender, address(this), taxFeeT.tlPFee);
-            emit Transfer(sender, address(0), taxFeeT.tblackFee);
+            emit Transfer(sender, deadAddress, taxFeeT.tblackFee);
         }
     }
 
