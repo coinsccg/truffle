@@ -9,7 +9,7 @@ import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 contract Stake is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    struct UserInfo {
+    struct StakeItem {
         uint256 amount; 
         uint256 rewardDebt;
     }
@@ -25,7 +25,7 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
     uint256 public lastRewardBlock;
     uint256 public rewardPerBlock; // 每个区块的奖励 10000000000000000000
 
-    mapping(address => UserInfo) public userInfo;
+    mapping(address => StakeItem) public userStakes;
 
     event AdminRewardWithdraw(uint256 amount);
     event Deposit(address indexed user, uint256 amount, uint256 harvestedAmount);
@@ -56,8 +56,8 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
 
         uint256 pendingRewards;
 
-        if (userInfo[msg.sender].amount > 0) {
-            pendingRewards = ((userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userInfo[msg.sender].rewardDebt;
+        if (userStakes[msg.sender].amount > 0) {
+            pendingRewards = ((userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userStakes[msg.sender].rewardDebt;
 
             if (pendingRewards > 0) {
                 rewardToken.safeTransfer(msg.sender, pendingRewards);
@@ -66,8 +66,8 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
 
         stakedToken.safeTransferFrom(msg.sender, address(this), amount);
 
-        userInfo[msg.sender].amount += amount;
-        userInfo[msg.sender].rewardDebt = (userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
+        userStakes[msg.sender].amount += amount;
+        userStakes[msg.sender].rewardDebt = (userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
 
         emit Deposit(msg.sender, amount, pendingRewards);
     }
@@ -75,23 +75,23 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
     function harvest() external nonReentrant {
         _updatePool();
 
-        uint256 pendingRewards = ((userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userInfo[msg.sender].rewardDebt;
+        uint256 pendingRewards = ((userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userStakes[msg.sender].rewardDebt;
 
         require(pendingRewards > 0, "Harvest: Pending rewards must be > 0");
 
-        userInfo[msg.sender].rewardDebt = (userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
+        userStakes[msg.sender].rewardDebt = (userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
         rewardToken.safeTransfer(msg.sender, pendingRewards);
 
         emit Harvest(msg.sender, pendingRewards);
     }
 
     function emergencyWithdraw() external nonReentrant whenPaused {
-        uint256 userBalance = userInfo[msg.sender].amount;
+        uint256 userBalance = userStakes[msg.sender].amount;
 
         require(userBalance != 0, "Withdraw: Amount must be > 0");
 
-        userInfo[msg.sender].amount = 0;
-        userInfo[msg.sender].rewardDebt = 0;
+        userStakes[msg.sender].amount = 0;
+        userStakes[msg.sender].rewardDebt = 0;
 
         stakedToken.safeTransfer(msg.sender, userBalance);
 
@@ -100,16 +100,16 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
 
     function withdraw(uint256 amount) external nonReentrant {
         require(
-            (userInfo[msg.sender].amount >= amount) && (amount > 0),
+            (userStakes[msg.sender].amount >= amount) && (amount > 0),
             "Withdraw: Amount must be > 0 or lower than user balance"
         );
 
         _updatePool();
 
-        uint256 pendingRewards = ((userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userInfo[msg.sender].rewardDebt;
+        uint256 pendingRewards = ((userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR) - userStakes[msg.sender].rewardDebt;
 
-        userInfo[msg.sender].amount -= amount;
-        userInfo[msg.sender].rewardDebt = (userInfo[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
+        userStakes[msg.sender].amount -= amount;
+        userStakes[msg.sender].rewardDebt = (userStakes[msg.sender].amount * accTokenPerShare) / PRECISION_FACTOR;
 
         stakedToken.safeTransfer(msg.sender, amount);
 
@@ -153,9 +153,9 @@ contract Stake is Ownable, Pausable, ReentrancyGuard {
             uint256 multiplier = _getMultiplier(lastRewardBlock, block.number);
             uint256 tokenReward = multiplier * rewardPerBlock;
             uint256 adjustedTokenPerShare = accTokenPerShare + (tokenReward * PRECISION_FACTOR) / stakedTokenSupply;
-            return (userInfo[user].amount * adjustedTokenPerShare) / PRECISION_FACTOR - userInfo[user].rewardDebt;
+            return (userStakes[user].amount * adjustedTokenPerShare) / PRECISION_FACTOR - userStakes[user].rewardDebt;
         } else {
-            return (userInfo[user].amount * accTokenPerShare) / PRECISION_FACTOR - userInfo[user].rewardDebt;
+            return (userStakes[user].amount * accTokenPerShare) / PRECISION_FACTOR - userStakes[user].rewardDebt;
         }
     }
 
