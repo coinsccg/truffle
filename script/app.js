@@ -12,19 +12,19 @@ const pkOwner = ''   // 合约创建者地址私钥
 const pkPreSale = '' // 合约预售地址私钥
 const pkAirdrop = '' // 合约空投地址私钥
 
-// const owner = '0xb3a7C64F9065c0a6A9EB57597943A3d187733238'     // 总地址
-const owner = '0x5e757A0DEc95Bf3a9699cf4cA7147a1F92Ce82a9'        // 总地址
+// const owner = ''     // 总地址
+const owner = ''        // 总地址
 
-// const A = '0x182AD90BFBFC9b972fE5298A0825314d5dDA3642'         // 预售地址
-const A = '0xEEA13450C12335B28B1162ef56B80aaC9AFd0C10'            // 预售地址
+// const A = ''         // 预售地址
+const A = ''            // 预售地址
 
-// const D = '0x06aD629119493cCc0bc5423aeAd7e37cf31CEBAE'         // 空投地址
-const D = '0x5AFbA347450A2299c1A2b827eafEf3835BB85668'            // 空投地址
+// const D = ''         // 空投地址
+const D = ''            // 空投地址
 
 
-const contractAddress = '0xc4a64752Ff2e476fbAB56e09e1592d0B68f73C73' // BYDK合约地址
-const preSaleAddress = '0x021874f17efeCBB9b8CCdEAd93A5C4E3d99B9afD'  // 预售合约地址
-const exchangeAddress = '0x09a1ee116899B905263400964C8C9be139febF2e' // 置换合约地址
+const contractAddress = '' // BYDK合约地址
+const preSaleAddress = ''  // 预售合约地址
+const exchangeAddress = '' // 置换合约地址
 
 
 
@@ -577,18 +577,18 @@ const contractABI = [
 
 const preSaleContractABI = []
 
-const B = "0x8C2B33a09dA1Be414591204424f36b1F7dA14241"            // 技术地址
-const C = "0x1ec9dcf7DCd28AFb87E96511BfF3494423d2B50A"            // 风投地址
-const E = "0xf71BD23CF2322FF8ff2EB42Cda7b0157956b7449"            // 社区地址
-const F = "0x3ce4b119488C10a62fE379a26cF99ba3bEd2E834"            // D池地址
-const G = "0xc49E8851983c7aD445a1697bfF0Aacc85182C4CF"            // 游戏地址
-const H = "0xD986Cfb4c7C370A6A81e24032d61836744D63647"            // 基金地址
-const I = "0x144255298efF5AFd8000B9fba74e4a4F2aFD6b20"            // 竞拍地址
+const B = ""            // 技术地址
+const C = ""            // 风投地址
+const E = ""            // 社区地址
+const F = ""            // D池地址
+const G = ""            // 游戏地址
+const H = ""            // 基金地址
+const I = ""            // 竞拍地址
 const zero = "0x0000000000000000000000000000000000000000"         // 零地址
-const share1_ = "0xB4a4a4f7eB75994855Bb99A61EBDCEcF499FeFbD"            // 股东1
-const share2_ = "0x69B1f31ae550BEf5F254bbF95173520fbb945Aa5"            // 股东2
-const share3_ = "0x1Bc29671F73A42c515C969f19Ca8056A27f848c1"            // 股东3
-const share4_ = "0x1759862A95a03D322EED0C9357A64C21C509b588"            // 股东4
+const share1_ = ""            // 股东1
+const share2_ = ""            // 股东2
+const share3_ = ""            // 股东3
+const share4_ = ""            // 股东4
 const web3 = new Web3(rpc)
 const privateKeyOwner = Buffer.from(pkOwner, 'hex')
 const privateKeyPreSale = Buffer.from(pkPreSale, 'hex')
@@ -754,17 +754,17 @@ async function setShareAddress(from, to, privateKey) {
 
 async function call() {
     console.log('-----------------------排除分红地址  开始-----------------------------')
-    await excludeFromReward(owner, owner, privateKeyOwner)              // 排除总地址
-    await excludeFromReward(owner, A, privateKeyOwner)                  // 排除预售地址
-    await excludeFromReward(owner, B, privateKeyOwner)                  // 排除技术地址
-    await excludeFromReward(owner, C, privateKeyOwner)                  // 排除风投地址
-    await excludeFromReward(owner, D, privateKeyOwner)                  // 排除空投地址
-    await excludeFromReward(owner, E, privateKeyOwner)                  // 排除社区地址
-    await excludeFromReward(owner, F, privateKeyOwner)                  // 排除D池地址
-    await excludeFromReward(owner, G, privateKeyOwner)                  // 排除游戏地址
-    await excludeFromReward(owner, H, privateKeyOwner)                  // 排除基金地址
-    await excludeFromReward(owner, I, privateKeyOwner)                  // 排除竞拍地址
-    await excludeFromReward(owner, exchangeAddress, privateKeyOwner)    // 排除置换合约地址
+    await excludeFromReward(owner, owner, privateKeyOwner)              
+    await excludeFromReward(owner, A, privateKeyOwner)                  
+    await excludeFromReward(owner, B, privateKeyOwner)                  
+    await excludeFromReward(owner, C, privateKeyOwner)                  
+    await excludeFromReward(owner, D, privateKeyOwner)                  
+    await excludeFromReward(owner, E, privateKeyOwner)                  
+    await excludeFromReward(owner, F, privateKeyOwner)                 
+    await excludeFromReward(owner, G, privateKeyOwner)                  
+    await excludeFromReward(owner, H, privateKeyOwner)                  
+    await excludeFromReward(owner, I, privateKeyOwner)                
+    await excludeFromReward(owner, exchangeAddress, privateKeyOwner)   
     console.log('-----------------------排除分红地址  结束-----------------------------')
 
     console.log('-----------------------转账  开始------------------------')
