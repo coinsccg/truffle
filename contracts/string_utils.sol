@@ -698,12 +698,10 @@ contract StringUtils{
         bytes memory s = new bytes(40);
         uint addressUint = uint(uint160(x));
         for (uint i = 0; i < 20; i++) {
-            uint8 b = uint8(addressUint / (2**(8*(19 - i))));
-            uint8 hi = b / 16;
-            uint8 lo = b % 16;
+            uint8 b = uint8(addressUint / (2**(152 - i*8))); // 152 == 8*(20-1)
             uint8 index = uint8(2*i);
-            s[index] = char(hi);
-            s[index+1] = char(lo);            
+            s[index] = char(b / 16);
+            s[index+1] = char(b % 16);            
         }
         return string(s);
     }
