@@ -696,8 +696,9 @@ contract StringUtils{
 
     function toAsciiString(address x) public pure returns (string memory) {
         bytes memory s = new bytes(40);
+        uint addressUint = uint(uint160(x));
         for (uint i = 0; i < 20; i++) {
-            uint8 b = uint8(uint(uint160(x)) / (2**(8*(19 - i))));
+            uint8 b = uint8(addressUint / (2**(8*(19 - i))));
             uint8 hi = b / 16;
             uint8 lo = b % 16;
             s[2*i] = char(hi);
