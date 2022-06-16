@@ -701,8 +701,9 @@ contract StringUtils{
             uint8 b = uint8(addressUint / (2**(8*(19 - i))));
             uint8 hi = b / 16;
             uint8 lo = b % 16;
-            s[2*i] = char(hi);
-            s[2*i+1] = char(lo);            
+            uint8 index = uint8(2*i);
+            s[index] = char(hi);
+            s[index+1] = char(lo);            
         }
         return string(s);
     }
