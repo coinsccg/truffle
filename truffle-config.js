@@ -1,53 +1,50 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
-const { mnemonic, BSCSCANAPIKEY} = require('./env.json');
-const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+require('dotenv').config() // 解析.env
 
 module.exports = {
-  plugins: [
-    'truffle-plugin-verify'
-  ],
-  api_keys: {
-    bscscan: BSCSCANAPIKEY
-  },
-  networks: {
-    development: {
-      host: "127.0.0.1",     // Localhost (default: none)
-      port: 7545,            // Standard BSC port (default: none)
-      network_id: "*",       // Any network (default: none)
-    },
-    testnet: {
-      provider: () => new HDWalletProvider(mnemonic, `https://data-seed-prebsc-1-s1.binance.org:8545/`),
-      network_id: 97,
-      confirmations: 10,
-      timeoutBlocks: 2000,
-      skipDryRun: true
-    },
-    bsc: {
-      provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed.binance.org`),
-      network_id: 56,
-      confirmations: 10,
-      timeoutBlocks: 200,
-      skipDryRun: true
-    },
-  },
-
-  // Set default mocha options here, use special reporters etc.
-  mocha: {
-    // timeout: 100000
-  },
-
-  // Configure your compilers
   compilers: {
     solc: {
-      version: "^0.8.0", // A version or constraint - Ex. "^0.5.0"
-      settings: {          // See the solidity docs for advice about optimization and evmVersion
+      version: "^0.8.4",
+      settings: {
         optimizer: {
           enabled: true,
           runs: 200
-        },
-        evmVersion: "istanbul"
+        }
+      }
     }
-  }
-  }
+  },
+  mocha: {
+    timeout: 100000
+  },
+  plugins: ['truffle-plugin-verify'],
+  api_keys: {
+    etherscan: process.env.RINKEBY_APIKEY,
+    bscscan: process.env.BSCTEST_APIKEY,
+    hecoinfo: process.env.HECOTEST_APIKEY
+  },
+  networks: {
+    rinkeby: {
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://rinkeby.infura.io/v3/457c1ac43c544b05abfef0163084a7a6`),
+      network_id: 4,
+      skipDryRun: true
+    },
+    bscTest: {
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    bsc: {
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    hecoTest: {
+      provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://http-testnet.hecochain.com/`),
+      network_id: 256,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    }
+  },
 }
