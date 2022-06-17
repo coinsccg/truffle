@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "truffle-plugin-verify": "^0.5.26",
+    "truffle-source-verify": "^0.0.6"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.1"
+  }
+}
