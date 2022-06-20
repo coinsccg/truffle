@@ -1,9 +1,16 @@
 {
-  "devDependencies": {
-    "truffle-plugin-verify": "^0.5.26",
-    "truffle-source-verify": "^0.0.6"
+  "name": "truffle",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.0.1"
+    "@openzeppelin/contracts": "^4.6.0",
+    "dotenv": "^16.0.1",
+    "truffle-plugin-verify": "^0.5.26"
   }
 }
