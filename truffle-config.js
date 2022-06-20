@@ -40,7 +40,7 @@ module.exports = {
       timeoutBlocks: 200,
       skipDryRun: true
     },
-    hecoTest: {
+    hecoTest: {//验证失败
       provider: () => new HDWalletProvider(process.env.MNEMONIC, `https://http-testnet.hecochain.com/`),
       network_id: 256,
       timeoutBlocks: 200,
