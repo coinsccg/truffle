@@ -43,4 +43,21 @@ contract Signature {
     function verify(address signer, Bid memory bid, uint8 v, bytes32 r, bytes32 s) public view returns (bool) {
         return signer == ecrecover(hashBid(bid), v, r, s);
     }
+
+    function verifyToAddress(bytes32 signature, Bid memory bid) public view returns (address) {
+        if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            assembly {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
+            return ecrecover(hashBid(bid), v, r, s);
+        } else {
+            return address(0);
+        }
+        
+    }
 }
