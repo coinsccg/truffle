@@ -14,7 +14,7 @@ contract Signature {
     }
 
     bytes32 private  constant BID_TYPEHASH = keccak256("Bid(uint256 amount,address owner)");
-    bytes32 private  constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)");
+    bytes32 private  constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 private DOMAIN_SEPARATOR;
 
     constructor() {
