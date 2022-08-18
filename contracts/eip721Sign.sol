@@ -17,12 +17,12 @@ contract Signature {
     bytes32 private  constant EIP712_DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 private DOMAIN_SEPARATOR;
 
-    constructor() {
+    constructor(string memory name, string memory version) {
         DOMAIN_SEPARATOR = keccak256(abi.encode(
             EIP712_DOMAIN_TYPEHASH,
-            keccak256("Auction dApp"),
-            keccak256("2"),
-            "97",
+            keccak256(bytes(name)),
+            keccak256(bytes(version)),
+            block.chainid,
             address(this)
         ));
     }
