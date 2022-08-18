@@ -44,7 +44,7 @@ contract Signature {
         return signer == ecrecover(hashBid(bid), v, r, s);
     }
 
-    function verifyToAddress(bytes32 signature, Bid memory bid) public view returns (address) {
+    function verifyToAddress(bytes memory signature, Bid memory bid) public view returns (address) {
         if (signature.length == 65) {
             bytes32 r;
             bytes32 s;
