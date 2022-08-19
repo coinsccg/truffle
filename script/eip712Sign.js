@@ -10,11 +10,10 @@ const data = JSON.stringify({
             { name: "version", type: "string" },
             { name: "chainId", type: "uint256" },
             { name: "verifyingContract", type: "address" },
-            { name: "salt", type: "bytes32" },
         ],
         Bid: [
-            { name: "amount", type: "uint256" },
-            { name: "wallet", type: "address" },
+            { name: "numerator", type: "uint256" },
+            { name: "owner", type: "address" },
         ],
     },
     domain: {
@@ -25,8 +24,8 @@ const data = JSON.stringify({
     },
     primaryType: "Bid",
     message: {
-        amount: amount,
-        wallet: owenr
+        numerator: amount,
+        owner: owenr
     }
 });
 
