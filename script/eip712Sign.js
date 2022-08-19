@@ -28,21 +28,16 @@ const data = JSON.stringify({
         owner: owenr
     }
 });
-
-web3.currentProvider.sendAsync(
-    {
-        method: "eth_signTypedData_v4",
-        params: [signer, data],
-        from: signer
-    },
-    function(err, result) {
-        if (err) {
-            return console.error(err);
-        }
-        const signature = result.result.substring(2);
-        const r = "0x" + signature.substring(0, 64);
-        const s = "0x" + signature.substring(64, 128);
-        const v = parseInt(signature.substring(128, 130), 16);
-        // The signature is now comprised of r, s, and v.
-        }
-    );
+let signer = xxx;
+window.web3.currentProvider.request({
+            method: "eth_signTypedData_v4",
+            params: [signer, data],
+        }).then(res => {
+            const signature = res.substring(2);
+            const r = "0x" + signature.substring(0, 64);
+            const s = "0x" + signature.substring(64, 128);
+            const v = parseInt(signature.substring(128, 130), 16);
+            console.log(r);
+            console.log(s);
+            console.log(v)
+        })
