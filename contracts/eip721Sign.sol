@@ -30,7 +30,7 @@ contract Signature {
 
     function hashBid(Bid memory bid) private view returns (bytes32){
         return keccak256(abi.encodePacked(
-            "\\x19\\x01",
+            "\x19\x01",
             DOMAIN_SEPARATOR,
             keccak256(abi.encode(
                     BID_TYPEHASH,
